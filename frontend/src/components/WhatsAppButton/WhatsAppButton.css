@@ -1,0 +1,59 @@
+/* ================= زر الواتساب العائم ================= */
+.whatsapp-float-btn {
+  position: fixed;
+  bottom: 50px;
+  right: 50px; /* يظهر في الأسفل على اليمين (أو استبدلها بـ left إذا أردته على اليسار) */
+  width: 65px;
+  height: 65px;
+  background-color: #25d366;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+  z-index: 9999; /* ضمان ظهوره فوق باقي عناصر الموقع */
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+/* تأثير عند تحريك الماوس فوق الزر */
+.whatsapp-float-btn:hover {
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 12px 30px rgba(37, 211, 102, 0.6);
+  background-color: #20ba5a;
+}
+
+/* حركة تنبيهية ناعمة (Pulse Animation) */
+.whatsapp-float-btn::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #25d366;
+  opacity: 0.5;
+  z-index: -1;
+  animation: whatsappPulse 2s infinite ease-in-out;
+}
+
+@keyframes whatsappPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* التوافق مع الهواتف المحمولة */
+@media (max-width: 768px) {
+  .whatsapp-float-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+  }
+}

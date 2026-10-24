@@ -1,0 +1,332 @@
+/* ================= الحاوية الرئيسية لصفحة تفاصيل المنتج ================= */
+.product-details-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 160px 20px 60px 20px; /* زيادة التباعد العلوي إلى 160px لإبعاد الكروت عن الـ Navbar */
+  box-sizing: border-box;
+  color: #ffffff;
+}
+
+/* ================= 1. القسم العلوي الرئيسي (Grid) ================= */
+.product-main-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr; /* نسبة العرض لتصغير كرت الصورة */
+  gap: 30px;
+  align-items: start;
+  margin-right: 135px;
+}
+
+/* كرت صورة المنتج (صغير ومليء بالكامل) */
+.product-image-box {
+  width: 575px;
+  height: 575 px;
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.product-detail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+.photo-placeholder {
+  font-size: 48px;
+  color: #64748b;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* كرت تفاصيل ومعلومات المنتج */
+.product-info-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 35px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.product-category-tag {
+  font-size: 14px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.product-main-title {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
+  color: #ffffff;
+}
+
+.product-price-tag {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  width: 80%;
+  margin: 0 auto;
+}
+
+.product-short-desc {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 90%;
+}
+
+/* عداد الكمية */
+.quantity-selector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 6px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-top: 5px;
+}
+
+.qty-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.qty-btn:hover {
+  transform: scale(1.2);
+}
+
+.qty-value {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* زر أضف للسلة العريض */
+.main-add-to-cart-btn {
+  width: 100%;
+  max-width: 420px;
+  padding: 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 5px;
+}
+
+.main-add-to-cart-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.2);
+}
+
+/* مميزات وشارات الخدمة */
+.product-features-badges {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  margin-top: 10px;
+}
+
+.feature-badge-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.02);
+  white-space: nowrap;
+}
+
+/* المشاركة */
+.share-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.share-title {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.share-circles {
+  display: flex;
+  gap: 12px;
+}
+
+.share-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.share-circle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+}
+
+/* فاصل الأقسام */
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 50px 0;
+}
+
+/* ================= 2. قسم الوصف الشامل ================= */
+.product-full-description-section {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.desc-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.desc-subtitle {
+  font-size: 18px;
+  color: #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.desc-full-text {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.8;
+}
+
+/* ================= 3. قسم منتجات ذات صلة ================= */
+.related-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.related-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.view-all-related-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.related-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+/* منع تحديد النص وإلغاء اختفاء أزرار الكمية عند النقر أو السحب */
+.quantity-selector {
+  user-select: none; /* يمنع تحديد العنصر بالفأرة */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.qty-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* منع تغيّر ألوان الأيقونات داخل الأزرار عند التركيز أو الضغط */
+.qty-btn:focus,
+.qty-btn:active,
+.qty-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.qty-btn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+/* التجاوب مع الجوال والشاشات الصغيرة */
+@media (max-width: 968px) {
+  .product-details-container {
+    padding-top: 130px;
+  }
+
+  .product-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .related-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .product-features-badges {
+    flex-direction: column;
+    max-width: 100%;
+  }
+}

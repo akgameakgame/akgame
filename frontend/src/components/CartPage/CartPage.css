@@ -1,0 +1,309 @@
+/* ================= الحاوية الرئيسية لصفحة السلة ================= */
+.cart-page-container {
+  width: 100%;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 160px 20px 60px 20px;
+  box-sizing: border-box;
+  color: #ffffff;
+}
+
+.cart-page-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 40px;
+}
+
+/* ================= 1. الشبكة الرئيسية (Grid) ================= */
+.cart-main-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* حالة السلة الفارغة */
+.empty-cart-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+}
+
+/* ================= 2. الجانب الأيمن: كروت المنتجات ================= */
+.cart-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-item-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.cart-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-item-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.cart-item-price {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* التحكم والكمية والصورة */
+.cart-item-controls-and-img {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-item-img-box {
+  width: 90px;
+  height: 90px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-placeholder {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* عداد الكمية */
+.quantity-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 4px 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.qty-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  outline: none;
+}
+
+.qty-value {
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ================= 3. الجانب الأيسر: كرت المجموع ================= */
+.cart-summary-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.summary-details-row {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.summary-val {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.summary-val.sub-text {
+  font-size: 13px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.total-price {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* أزرار الإجراءات */
+.cart-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* إزالة الظل الأزرق نهائياً من زر إتمام الطلب */
+.checkout-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  
+  /* إزالة الإضاءة والظل الأزرق في جميع الحالات */
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkout-btn:hover,
+.checkout-btn:focus,
+.checkout-btn:active {
+  background: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: none !important; /* إلغاء أي ظل أزرق أو مضيء عند التمرير أو النقر */
+  outline: none !important;
+}
+
+.continue-shopping-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent !important;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.continue-shopping-btn:hover,
+.continue-shopping-btn:focus,
+.continue-shopping-btn:active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* مميزات الثقة والضمان */
+.cart-trust-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+/* منع تحديد النص وإلغاء اختفاء أزرار الكمية عند النقر أو السحب */
+.quantity-selector {
+  user-select: none; /* يمنع تحديد العنصر بالفأرة */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.qty-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* منع تغيّر ألوان الأيقونات داخل الأزرار عند التركيز أو الضغط */
+.qty-btn:focus,
+.qty-btn:active,
+.qty-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.qty-btn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+/* التجاوب للشاشات الصغيرة */
+@media (max-width: 968px) {
+  .cart-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
