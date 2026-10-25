@@ -9,8 +9,8 @@ export default function Hero({ currentLang }) {
   const t = translations[currentLang]?.hero || translations['ar'].hero;
   const canvasRef = useRef(null);
 
-  // حالة تشغيل الأضواء (تبدأ منطفئة)
-  const [isLightsOn, setIsLightsOn] = useState(false);
+  const glassCardRef = useRef(null);
+  const [tiltStyle, setTiltStyle] = useState({});
 
   const scrollToNew = (e) => {
     e.preventDefault();
@@ -20,21 +20,31 @@ export default function Hero({ currentLang }) {
     }
   };
 
-  // مراقبة حركة السكرول لتشغيل الأضواء
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 30) {
-        setIsLightsOn(true);
-      } else {
-        setIsLightsOn(false);
-      }
-    };
+  const handleTiltMove = (e) => {
+    if (!glassCardRef.current) return;
+    const rect = glassCardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -10; 
+    const rotateY = ((x - centerX) / centerX) * 10;
+    
+    setTiltStyle({
+      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+      transition: 'none',
+    });
+  };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handleTiltLeave = () => {
+    setTiltStyle({
+      transform: `perspective(1000px) rotateX(0deg) rotateY(0deg)`,
+      transition: 'transform 0.5s ease',
+    });
+  };
 
-  // أنميشن الجسيمات
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -132,7 +142,7 @@ export default function Hero({ currentLang }) {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = isLightsOn ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.2)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.fill();
       }
 
@@ -147,7 +157,7 @@ export default function Hero({ currentLang }) {
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('resize', handleResize);
     };
-  }, [isLightsOn]);
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -180,19 +190,6 @@ export default function Hero({ currentLang }) {
     <section className="hero-section">
       <canvas ref={canvasRef} className="hero-particle-canvas" />
 
-      {/* الكشافات الجانبية - تظهر وتضيء فقط عند التمرير (Scroll) */}
-      <div className={`stadium-floodlights-wrapper ${isLightsOn ? 'lights-on' : ''}`}>
-        <div className="floodlight floodlight-left">
-          <div className="floodlight-fixture"></div>
-          {isLightsOn && <div className="floodlight-beam beam-left"></div>}
-        </div>
-
-        <div className="floodlight floodlight-right">
-          <div className="floodlight-fixture"></div>
-          {isLightsOn && <div className="floodlight-beam beam-right"></div>}
-        </div>
-      </div>
-
       <div className="hero-container">
         <motion.div 
           className="hero-content"
@@ -200,20 +197,28 @@ export default function Hero({ currentLang }) {
           initial="hidden"
           animate="visible"
         >
-          <motion.h1 variants={itemVariants} className="hero-title">
-            {t.title}
-          </motion.h1>
+          <div 
+            className="hero-glass-card"
+            ref={glassCardRef}
+            style={tiltStyle}
+            onMouseMove={handleTiltMove}
+            onMouseLeave={handleTiltLeave}
+          >
+            <motion.h1 variants={itemVariants} className="hero-title">
+              {t.title}
+            </motion.h1>
 
-          <motion.p variants={itemVariants} className="hero-description">
-            {t.description}
-          </motion.p>
+            <motion.p variants={itemVariants} className="hero-description">
+              {t.description}
+            </motion.p>
 
-          <motion.div variants={itemVariants} className="hero-buttons">
-            <a href="#new" onClick={scrollToNew} className="hero-btn white-long-btn">
-              <Compass size={20} />
-              <span>{t.btnPrimary}</span>
-            </a>
-          </motion.div>
+            <motion.div variants={itemVariants} className="hero-buttons">
+              <a href="#new" onClick={scrollToNew} className="hero-btn white-long-btn">
+                <Compass size={20} />
+                <span>{t.btnPrimary}</span>
+              </a>
+            </motion.div>
+          </div>
         </motion.div>
 
         <motion.div 
@@ -222,8 +227,6 @@ export default function Hero({ currentLang }) {
           initial="hidden"
           animate="visible"
         >
-          <div className={`hero-glow ${isLightsOn ? 'glow-active' : ''}`}></div>
-          
           <div className="hero-3d-card">
             <model-viewer
               src="/model.glb"
@@ -231,14 +234,11 @@ export default function Hero({ currentLang }) {
               auto-rotate
               camera-controls
               disable-zoom
-              shadow-intensity={isLightsOn ? "1.8" : "0.2"}
+              shadow-intensity="1"
               shadow-softness="0.5"
-              exposure={isLightsOn ? "1.3" : "0.4"}
-              
-              /* === خصائص التقريب والتكبير السينمائي للمجسم === */
+              exposure="1"
               camera-orbit="0deg 75deg 80%" 
               field-of-view="30deg"         
-              
               className="hero-model-viewer"
             ></model-viewer>
           </div>
