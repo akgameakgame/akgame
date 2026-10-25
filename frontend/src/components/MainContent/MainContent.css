@@ -136,39 +136,75 @@
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.3);
 }
-
-/* شبكة المنتجات (5 كروت في الصف) */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   width: 100%;
   justify-content: center;
+  align-items: stretch; /* إجبار جميع الكروت في الصف على التمدد بنفس الارتفاع */
 }
 
 .product-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   transition: all 0.3s ease;
   cursor: pointer;
-  height: 380px;
+  height: 380px; /* ارتفاع ثابت لجميع الشاشات الكبيرة */
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-.product-card:hover {
-  border-color: #0f172a;
-  transform: translateY(-6px);
-  box-shadow: 0 15px 35px rgba(255, 255, 255, 0.15);
+.product-image-container {
+  width: 100%;
+  height: 160px; /* ارتفاع ثابت وموحد لحاوية الصورة */
+  overflow: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  flex-shrink: 0; /* منع انكماش حاوية الصورة */
 }
 
+.product-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  margin-top: 8px;
+  gap: 4px;
+}
+
+.product-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* تحديد العنوان بسطرين فقط لمنع تمدد الكرت */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 34px; /* ارتفاع ثابت للعنوان */
+}
+
+.product-price-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 28px; /* ارتفاع ثابت لسطر السعر حتى لو لم يوجد تخفيض */
+  margin: 4px 0;
+}
 /* ================= تحسين مظهر الشارات بشكل عصري ================= */
 .product-badge {
   position: absolute;
@@ -358,7 +394,6 @@
 /* ====================================================
    قسم موقع المحل والخريطة الفاخرة (Location & Map Section)
    ==================================================== */
-/* ================= تنسيق عنوان ونصوص قسم الموقع ================= */
 .store-location-section {
   width: 100%;
   max-width: 1300px;
@@ -384,6 +419,7 @@
   text-align: center;
   line-height: 1.6;
 }
+
 .location-container-card {
   display: grid;
   grid-template-columns: 1fr 1.3fr;
@@ -477,7 +513,7 @@
   width: 100%;
   height: 100%;
   border: none;
-  filter: invert(90%) hue-rotate(180deg) contrast(110%); /* خلفية ليلية مظلمة متناسقة مع الموقع */
+  filter: invert(90%) hue-rotate(180deg) contrast(110%);
 }
 
 /* عنصر الفئة الكلي */
@@ -507,10 +543,6 @@
   color: #b6acac;
 }
 
-/* ====================================================
-   تجاوب الشاشات (Media Queries) 
-   ==================================================== */
-/* ================= تنظيم أوقات العمل ================= */
 /* ================= قائمة أوقات العمل المفصلة ================= */
 .hours-item {
   align-items: flex-start !important;
@@ -546,7 +578,6 @@
   direction: ltr;
 }
 
-/* تمييز يوم الجمعة بلون خاص */
 .single-day-row.friday-row {
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.25);
@@ -556,6 +587,7 @@
 .single-day-row.friday-row .day-time {
   color: #fca5a5;
 }
+
 .hours-rows {
   display: flex;
   flex-direction: column;
@@ -580,6 +612,10 @@
   color: #fca5a5;
   background: rgba(239, 68, 68, 0.08);
 }
+
+/* ====================================================
+   تجاوب الشاشات (Media Queries) 
+   ==================================================== */
 @media (max-width: 1200px) {
   .products-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -609,94 +645,54 @@
     height: 300px;
   }
 }
-
 @media (max-width: 768px) {
-  .store-main-container {
-    padding: 30px 4%;
-    gap: 35px;
-  }
-
-  .section-header {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-  }
-  
-  .section-header .section-title {
-    text-align: center;
-  }
-
-  .view-all-btn {
-    align-self: center;
-  }
-
-  .categories-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
-  
-  .category-circle {
-    width: 85px;
-    height: 85px;
-  }
-
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+    align-items: stretch;
   }
 
   .product-card {
-    height: auto;
-    min-height: 330px;
-    padding: 12px;
+    height: 320px !important; /* تثبيت الارتفاع تماماً لجميع الكروت في الجوال */
+    padding: 10px;
   }
 
-  .store-categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-  } 
+  .product-image-container {
+    height: 130px !important; /* تثبيت ارتفاع مربع الصورة */
+  }
 
-  .store-category-box {
-    height: 140px;
+  .product-title {
+    font-size: 11px;
+    height: 30px;
+  }
+
+  .product-price {
+    font-size: 12px;
+  }
+
+  .product-price.old {
+    font-size: 10px;
+  }
+
+  .add-to-cart-btn {
+    padding: 8px 4px;
+    font-size: 11px;
+    border-radius: 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .categories-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  
-  .store-categories-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .store-category-box {
-    height: 150px;
-  }
 
   .product-card {
-    padding: 10px;
-    min-height: 290px;
+    height: 310px !important; /* ارتفاع ثابت ومطابق لجميع الكروت بدون تفاوت */
+    padding: 8px;
   }
 
   .product-image-container {
-    height: 130px;
-  }
-
-  .product-title, .product-price {
-    font-size: 11px;
-  }
-
-  .add-to-cart-btn {
-    padding: 8px;
-    font-size: 11px;
+    height: 120px !important;
   }
 }

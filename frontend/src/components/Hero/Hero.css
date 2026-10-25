@@ -8,14 +8,18 @@
   justify-content: center;
   padding: 140px 0 60px 0;
   box-sizing: border-box;
-  
-  /* تعيين صورة الـ hero.jpg كخلفية للقسم بالكامل */
-  background-image: url('/hero.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  
+  background: #0a0a0c;
   overflow: hidden;
+}
+
+.hero-particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; 
 }
 
 .hero-section::before {
@@ -25,8 +29,25 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(10, 10, 12, 0.85);
-  z-index: 1;
+  background: radial-gradient(circle at center, rgba(10, 10, 12, 0.2) 0%, rgba(10, 10, 12, 0.85) 100%);
+  z-index: 2;
+}
+
+.stadium-floodlights-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+  opacity: 0.3; 
+  transition: opacity 0.6s ease-in-out;
+}
+
+.stadium-floodlights-wrapper.lights-on {
+  opacity: 1;
 }
 
 .hero-container {
@@ -40,11 +61,11 @@
   direction: ltr;
   gap: 50px;
   position: relative;
-  z-index: 2;
+  z-index: 4; 
   box-sizing: border-box;
 }
 
-/* ================= صندوق النصوص والمسافات البينية ================= */
+/* ================= صندوق النصوص ================= */
 .hero-content {
   flex: 1;
   display: flex;
@@ -70,7 +91,6 @@
   margin: 0 0 15px 0;
 }
 
-/* ================= تنسيق زر تصفح الألعاب ================= */
 .hero-buttons {
   display: flex;
   width: 100%;
@@ -105,7 +125,7 @@
   box-shadow: 0 12px 35px rgba(255, 255, 255, 0.4) !important;
 }
 
-/* ================= قسم المجسم الثلاثي الأبعاد الطائف ================= */
+/* ================= قسم المجسم المكبر ================= */
 .hero-image-wrapper {
   flex: 1;
   position: relative;
@@ -115,60 +135,140 @@
   width: 100%;
 }
 
-/* توهج سينمائي خلف المجسم */
 .hero-glow {
   position: absolute;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.12) 50%, transparent 75%);
-  filter: blur(80px);
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(70px);
   z-index: 1;
   border-radius: 50%;
+  transition: all 0.8s ease-in-out;
+}
+
+.hero-glow.glow-active {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 75%);
 }
 
 .hero-3d-card {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px; /* تم تكبير الحاوية */
   display: flex !important;
   justify-content: center;
   align-items: center;
-  min-height: 450px;
+  min-height: 550px; /* زيادة الارتفاع */
   background: transparent;
   border: none;
   box-shadow: none;
   animation: floatCard 6s ease-in-out infinite;
 }
 
-/* إخفاء الصورة الثابتة فقط لإظهار المجسم 3D */
-.hero-game-img {
-  display: none !important;
-}
-
 .hero-model-viewer {
   display: block !important;
   width: 100%;
-  height: 500px;
+  height: 550px; /* زيادة ارتفاع المجسم */
   z-index: 3;
   background-color: transparent !important;
   --poster-color: transparent;
-  filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.75));
+  filter: drop-shadow(0 35px 25px rgba(0, 0, 0, 0.95)) !important;
   border: none;
   outline: none;
+  transform: scale(1.15); /* تكبير إضافي بنسبة 15% */
 }
 
-/* ================= أنميشن الطفو المستمر للمجسم ================= */
+/* ================= الكشافات الجانبية السينمائية ================= */
+.floodlight {
+  position: absolute;
+  top: 15px;
+  width: 120px;
+  height: 100px;
+}
+
+.floodlight-left { left: 15px; }
+.floodlight-right { right: 15px; }
+
+.floodlight-fixture {
+  position: relative;
+  width: 90px;
+  height: 55px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  border: 2px solid #475569; 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+  transition: all 0.6s ease-in-out;
+}
+
+.stadium-floodlights-wrapper.lights-on .floodlight-fixture {
+  border-color: #64748b;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 10px 20px rgba(0, 0, 0, 0.8);
+}
+
+.floodlight-fixture::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 8px;
+  background: radial-gradient(circle, #334155 40%, #0f172a 100%);
+  transition: all 0.6s ease-in-out;
+}
+
+.stadium-floodlights-wrapper.lights-on .floodlight-fixture::after {
+  background: radial-gradient(circle, #ffffff 40%, #e2e8f0 80%, #94a3b8 100%);
+  box-shadow: 0 0 30px 10px #ffffff;
+}
+
+.floodlight-left .floodlight-fixture { transform: rotate(35deg); }
+.floodlight-right .floodlight-fixture { transform: rotate(-35deg); }
+
+.floodlight-beam {
+  position: absolute;
+  top: 30px;
+  width: 650px;
+  height: 900px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: blur(25px);
+  opacity: 0.75;
+  animation: beamAppear 0.5s ease-out;
+}
+.beam-left {
+  left: 20px;
+  transform-origin: top left;
+  transform: rotate(-32deg);
+  background: conic-gradient(
+    from 135deg at 0% 0%,
+    rgba(255, 255, 255, 0.45) 0deg,
+    rgba(255, 255, 255, 0.12) 30deg,
+    rgba(255, 255, 255, 0) 65deg
+  );
+}
+
+.beam-right {
+  right: 20px;
+  transform-origin: top right;
+  transform: rotate(32deg);
+  background: conic-gradient(
+    from 225deg at 100% 0%,
+    rgba(255, 255, 255, 0.45) 0deg,
+    rgba(255, 255, 255, 0.12) 30deg,
+    rgba(255, 255, 255, 0) 65deg
+  );
+}
+
+/* ================= الحركات ================= */
 @keyframes floatCard {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(0.8deg);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(0.8deg); }
 }
 
-/* ================= التجاوب مع الشاشات المتوسطة والصغيرة (Responsive) ================= */
+@keyframes beamAppear {
+  from { opacity: 0; }
+  to { opacity: 0.75; }
+}
+
+/* ================= التجاوب ================= */
 @media (max-width: 968px) {
   .hero-section {
     padding: 100px 0 40px 0;
@@ -190,9 +290,7 @@
     width: 100%;
   }
 
-  .hero-title {
-    font-size: 32px;
-  }
+  .hero-title { font-size: 32px; }
 
   .hero-buttons {
     justify-content: center;
@@ -200,9 +298,7 @@
     width: 100%;
   }
 
-  .white-long-btn {
-    max-width: 100%;
-  }
+  .white-long-btn { max-width: 100%; }
 
   .hero-image-wrapper {
     width: 100%;
@@ -220,10 +316,6 @@
     display: block !important;
     width: 100%;
     height: 380px !important;
-  }
-
-  .hero-glow {
-    width: 260px;
-    height: 260px;
+    transform: scale(1); /* إعادة الحجم للطبيعي في الشاشات الصغيرة */
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Compass } from 'lucide-react';
 import { translations } from '../../locales/translations';
 import { motion } from 'framer-motion';
@@ -7,8 +7,11 @@ import './Hero.css';
 
 export default function Hero({ currentLang }) {
   const t = translations[currentLang]?.hero || translations['ar'].hero;
+  const canvasRef = useRef(null);
 
-  // دالة التمرير السلس إلى قسم الجديد
+  // حالة تشغيل الأضواء (تبدأ منطفئة)
+  const [isLightsOn, setIsLightsOn] = useState(false);
+
   const scrollToNew = (e) => {
     e.preventDefault();
     const element = document.getElementById('new');
@@ -17,15 +20,140 @@ export default function Hero({ currentLang }) {
     }
   };
 
-  // إعدادات الحركات المتسلسلة لظهور النصوص
+  // مراقبة حركة السكرول لتشغيل الأضواء
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setIsLightsOn(true);
+      } else {
+        setIsLightsOn(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // أنميشن الجسيمات
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let animationFrameId;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const SEPARATION = 35;
+    const AMOUNTX = Math.floor(width / SEPARATION) + 5;
+    const AMOUNTY = Math.floor(height / SEPARATION) + 5;
+
+    const particles = [];
+    let count = 0;
+
+    const mouse = {
+      x: -1000,
+      y: -1000,
+      radius: 130
+    };
+
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const originX = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2 + width / 2;
+        const originY = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2 + height / 2;
+        
+        particles.push({
+          x: originX,
+          y: originY,
+          baseX: originX,
+          baseY: originY,
+          ix,
+          iy,
+          vx: 0,
+          vy: 0,
+          size: Math.random() * 1.5 + 1
+        });
+      }
+    }
+
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('resize', handleResize);
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+      count += 0.03;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        const waveX = Math.sin(p.ix * 0.3 + count) * 8;
+        const waveY = Math.cos(p.iy * 0.3 + count) * 8;
+
+        const targetX = p.baseX + waveX;
+        const targetY = p.baseY + waveY;
+
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < mouse.radius) {
+          const force = (mouse.radius - distance) / mouse.radius;
+          const angle = Math.atan2(dy, dx);
+
+          p.vx -= Math.cos(angle) * force * 7;
+          p.vy -= Math.sin(angle) * force * 7;
+        }
+
+        p.vx += (targetX - p.x) * 0.06;
+        p.vy += (targetY - p.y) * 0.06;
+
+        p.vx *= 0.82;
+        p.vy *= 0.82;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = isLightsOn ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.2)';
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isLightsOn]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.2, delayChildren: 0.1 },
     },
   };
 
@@ -34,10 +162,7 @@ export default function Hero({ currentLang }) {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1],
-      },
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
@@ -47,19 +172,28 @@ export default function Hero({ currentLang }) {
       opacity: 1,
       scale: 1,
       x: 0,
-      transition: {
-        duration: 1,
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.3,
-      },
+      transition: { duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 },
     },
   };
 
   return (
     <section className="hero-section">
+      <canvas ref={canvasRef} className="hero-particle-canvas" />
+
+      {/* الكشافات الجانبية - تظهر وتضيء فقط عند التمرير (Scroll) */}
+      <div className={`stadium-floodlights-wrapper ${isLightsOn ? 'lights-on' : ''}`}>
+        <div className="floodlight floodlight-left">
+          <div className="floodlight-fixture"></div>
+          {isLightsOn && <div className="floodlight-beam beam-left"></div>}
+        </div>
+
+        <div className="floodlight floodlight-right">
+          <div className="floodlight-fixture"></div>
+          {isLightsOn && <div className="floodlight-beam beam-right"></div>}
+        </div>
+      </div>
+
       <div className="hero-container">
-        
-        {/* جهة النصوص مع أنميشن دخول متسلسل */}
         <motion.div 
           className="hero-content"
           variants={containerVariants}
@@ -82,31 +216,33 @@ export default function Hero({ currentLang }) {
           </motion.div>
         </motion.div>
 
-        {/* جهة الصورة والمجسم مع أنميشن دخول فاخر */}
         <motion.div 
           className="hero-image-wrapper"
           variants={imageVariants}
           initial="hidden"
           animate="visible"
         >
-          <div className="hero-glow"></div>
+          <div className={`hero-glow ${isLightsOn ? 'glow-active' : ''}`}></div>
+          
           <div className="hero-3d-card">
-            {/* صورة الخلفية black.jpg */}
-            <img src="/black.jpg" alt="AKGAME Hero Visual" className="hero-game-img" />
-            
-            {/* عنصر عرض المجسم الثلاثي الأبعاد */}
             <model-viewer
               src="/model.glb"
               alt="AKGAME 3D Model"
               auto-rotate
               camera-controls
               disable-zoom
-              shadow-intensity="1"
+              shadow-intensity={isLightsOn ? "1.8" : "0.2"}
+              shadow-softness="0.5"
+              exposure={isLightsOn ? "1.3" : "0.4"}
+              
+              /* === خصائص التقريب والتكبير السينمائي للمجسم === */
+              camera-orbit="0deg 75deg 80%" 
+              field-of-view="30deg"         
+              
               className="hero-model-viewer"
             ></model-viewer>
           </div>
         </motion.div>
-
       </div>
     </section>
   );

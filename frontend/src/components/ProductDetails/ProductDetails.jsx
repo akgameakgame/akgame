@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Minus, Share2, ShieldCheck, Truck, CreditCard } from 'lucide-react';
+import { Plus, Minus, Share2, ShieldCheck, Truck, CreditCard, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { translations } from '../../locales/translations';
 import './ProductDetails.css';
@@ -15,6 +15,13 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  // حالة الصورة المعروضة مع مصفوفة الصور
+  const [productImages, setProductImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // حالة إظهار تم النسخ بنجاح
+  const [copied, setCopied] = useState(false);
+
   // ترجمات واجهة صفحة تفاصيل المنتج
   const localTranslations = {
     ar: {
@@ -23,6 +30,7 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
       warranty: 'ضمان شهر كامل',
       fastShipping: 'التوصيل السريع',
       share: 'مشاركة',
+      copiedText: 'تم نسخ الرابط بنجاح!',
       description: 'الوصف',
       relatedProducts: 'منتجات ذات صلة',
       viewAll: 'عرض الكل',
@@ -37,6 +45,7 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
       warranty: '1 Month Warranty',
       fastShipping: 'Fast Shipping',
       share: 'Share',
+      copiedText: 'Link copied to clipboard!',
       description: 'Description',
       relatedProducts: 'Related Products',
       viewAll: 'View All',
@@ -51,6 +60,7 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
       warranty: 'Garantie 1 mois',
       fastShipping: 'Livraison rapide',
       share: 'Partager',
+      copiedText: 'Lien copié dans le presse-papier !',
       description: 'Description',
       relatedProducts: 'Produits similaires',
       viewAll: 'Voir tout',
@@ -65,6 +75,7 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
       warranty: 'Garantía de 1 mes',
       fastShipping: 'Envío rápido',
       share: 'Compartir',
+      copiedText: '¡Enlace copiado al portapapeles!',
       description: 'Descripción',
       relatedProducts: 'Productos relacionados',
       viewAll: 'Ver todo',
@@ -77,7 +88,6 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
 
   const t = translations?.[currentLang]?.productDetails || localTranslations[currentLang] || localTranslations['ar'];
 
-  // جلب بيانات المنتج والمنتجات ذات الصلة من Supabase
   useEffect(() => {
     async function fetchProductDetails() {
       setLoading(true);
@@ -92,6 +102,20 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
           console.error('Error fetching product:', prodError.message);
         } else {
           setProduct(currentProd);
+
+          let imgs = [];
+          if (Array.isArray(currentProd.images) && currentProd.images.length > 0) {
+            imgs = currentProd.images;
+          } else if (Array.isArray(currentProd.images_url) && currentProd.images_url.length > 0) {
+            imgs = currentProd.images_url;
+          } else if (typeof currentProd.image_url === 'string' && currentProd.image_url.includes(',')) {
+            imgs = currentProd.image_url.split(',').map((url) => url.trim());
+          } else if (currentProd.image_url) {
+            imgs = [currentProd.image_url];
+          }
+
+          setProductImages(imgs);
+          setCurrentImageIndex(0);
 
           const { data: related, error: relError } = await supabase
             .from('products')
@@ -125,7 +149,42 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
     }
   };
 
-  // دالة الشراء والإضافة إلى السلة بالسعر الصحيح (سعر التخفيض إذا وجد)
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? productImages.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev === productImages.length - 1 ? 0 : prev + 1));
+  };
+
+  // دالة المشاركة والنسخ
+  const handleShare = async () => {
+    const shareData = {
+      title: product?.title || 'AKGAME Store',
+      text: `شاهد هذا المنتج المميز في متجر AKGAME: ${product?.title}`,
+      url: window.location.href,
+    };
+
+    // تجربة فتح نافذة المشاركة المباشرة للهواتف (Native Web Share)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        console.log('Share error/cancelled:', err);
+      }
+    }
+
+    // إذا كان المتصفح على الكمبيوتر أو لا يدعم Web Share يتم نسخ الرابط
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
+
   const handleAddToCart = (item, qty = 1) => {
     const finalPrice = (item.discount_price && Number(item.discount_price) > 0)
       ? item.discount_price
@@ -133,7 +192,7 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
 
     const itemToAdd = {
       ...item,
-      price: finalPrice, // اعتماد السعر المخفض في السلة
+      price: finalPrice,
       quantity: qty
     };
 
@@ -161,13 +220,11 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
     );
   }
 
-  // معرفة هل المنتج يحتوي على تخفيض أم لا
   const hasDiscount = product.discount_price && Number(product.discount_price) > 0;
 
   return (
     <div className="product-details-container" dir={isRtl ? 'rtl' : 'ltr'}>
       
-      {/* 1. القسم العلوي الرئيسي للمنتج */}
       <div className="product-main-grid">
         
         {/* صندوق التفاصيل والشراء */}
@@ -175,7 +232,6 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
           <span className="product-category-tag">{product.category || 'jeux retro'}</span>
           <h1 className="product-main-title">{product.title}</h1>
 
-          {/* عرض السعر بناءً على وجود تخفيض أم لا */}
           <div className="product-price-tag" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             {hasDiscount ? (
               <>
@@ -192,10 +248,9 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
           </div>
 
           <p className="product-short-desc">
-            {product.description || 'BATMAN: ARKHAM CITY | PS3 (NTSC-J) Donnez une dimension supérieure à votre collection PlayStation 3 avec Batman: Arkham City en édition originale japonaise.'}
+            {product.description || 'BATMAN: ARKHAM CITY | PS3 (NTSC-J)'}
           </p>
 
-          {/* عداد الكمية */}
           <div className="quantity-selector">
             <button className="qty-btn" onClick={() => handleQuantityChange('inc')}>
               <Plus size={16} />
@@ -206,7 +261,6 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
             </button>
           </div>
 
-          {/* زر إضافة للسلة بالسعر المخفض */}
           <button 
             className="main-add-to-cart-btn"
             onClick={() => handleAddToCart(product, quantity)}
@@ -214,7 +268,6 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
             {t.addToCart}
           </button>
 
-          {/* مميزات الخدمة والتوصيل */}
           <div className="product-features-badges">
             <div className="feature-badge-item">
               <CreditCard size={18} />
@@ -230,21 +283,71 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
             </div>
           </div>
 
-          {/* مشاركة المنتج */}
+          {/* زر المشاركة التفاعلي */}
           <div className="share-section">
             <span className="share-title">{t.share}:</span>
             <div className="share-circles">
-              <button className="share-circle-btn"><Share2 size={16} /></button>
+              <button 
+                className={`share-circle-btn ${copied ? 'copied-btn' : ''}`}
+                onClick={handleShare}
+                title={t.share}
+              >
+                {copied ? <Check size={16} color="#4ade80" /> : <Share2 size={16} />}
+              </button>
             </div>
+            {copied && <span className="copied-toast-msg">{t.copiedText}</span>}
           </div>
         </div>
 
-        {/* صندوق صورة المنتج */}
-        <div className="product-image-box">
-          {product.image_url ? (
-            <img src={product.image_url} alt={product.title} className="product-detail-img" />
-          ) : (
-            <div className="photo-placeholder">photo</div>
+        {/* معرض الصور والتنقل */}
+        <div className="product-gallery-wrapper">
+          <div className="product-image-box">
+            {productImages.length > 0 ? (
+              <img 
+                src={productImages[currentImageIndex]} 
+                alt={`${product.title} - ${currentImageIndex + 1}`} 
+                className="product-detail-img" 
+              />
+            ) : (
+              <div className="photo-placeholder">photo</div>
+            )}
+
+            {productImages.length > 1 && (
+              <>
+                <button 
+                  className="gallery-nav-btn gallery-prev-btn" 
+                  onClick={handlePrevImage}
+                  aria-label="Previous Image"
+                >
+                  {isRtl ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+                </button>
+                <button 
+                  className="gallery-nav-btn gallery-next-btn" 
+                  onClick={handleNextImage}
+                  aria-label="Next Image"
+                >
+                  {isRtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+                </button>
+                
+                <div className="gallery-counter">
+                  {currentImageIndex + 1} / {productImages.length}
+                </div>
+              </>
+            )}
+          </div>
+
+          {productImages.length > 1 && (
+            <div className="product-thumbnails-bar">
+              {productImages.map((imgUrl, index) => (
+                <div
+                  key={index}
+                  className={`thumbnail-item ${index === currentImageIndex ? 'active-thumb' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                >
+                  <img src={imgUrl} alt={`Thumbnail ${index + 1}`} />
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -252,18 +355,17 @@ export default function ProductDetails({ currentLang, onAddToCart }) {
 
       <hr className="section-divider" />
 
-      {/* 2. قسم الوصف التفصيلي الكامل */}
+      {/* الوصف والمنتجات ذات الصلة */}
       <div className="product-full-description-section">
         <h2 className="desc-section-title">{t.description}</h2>
         <h3 className="desc-subtitle">{product.title}</h3>
         <p className="desc-full-text">
-          {product.full_description || product.description || 'Donnez une dimension supérieure à votre collection PlayStation 3 avec Batman: Arkham City en édition originale japonaise (NTSC-J). Développé par Rocksteady Studios et édité par Warner Bros. Interactive Entertainment, ce chef-d\'œuvre du jeu d\'action-aventure super-héroïque a redéfini le genre.'}
+          {product.full_description || product.description}
         </p>
       </div>
 
       <hr className="section-divider" />
 
-      {/* 3. قسم منتجات ذات صلة */}
       <div className="related-products-section">
         <div className="related-header">
           <h2 className="related-title">{t.relatedProducts}</h2>
