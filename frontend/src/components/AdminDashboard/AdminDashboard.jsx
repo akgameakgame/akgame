@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   // حالة نافذة تأكيد الحذف المخصصة (بديل window.confirm)
   const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
 
-  // حالات نموذج إضافة منتج جديد
+  // حالات نموذج إضافة أو تعديل منتج
   const [newTitle, setNewTitle] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [newDiscountPrice, setNewDiscountPrice] = useState('');
@@ -30,10 +30,41 @@ export default function AdminDashboard() {
   const [newCategory, setNewCategory] = useState('أجهزة');
   const [newDescription, setNewDescription] = useState('');
   
+  // تتبع معرف المنتج قيد التعديل (إذا كان null فهذا يعني إضافة منتج جديد)
+  const [editingProductId, setEditingProductId] = useState(null);
+  
   // الملفات المعاينة
   const [selectedFiles, setSelectedFiles] = useState([]); 
   const [previewUrls, setPreviewUrls] = useState([]);
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+
+  // دالة تفريغ نموذج المنتج وإلغاء وضع التعديل
+  const resetForm = () => {
+    setEditingProductId(null);
+    setNewTitle('');
+    setNewPrice('');
+    setNewDiscountPrice('');
+    setNewBadge('');
+    setNewCategory('أجهزة');
+    setNewDescription('');
+    setSelectedFiles([]);
+    setPreviewUrls([]);
+  };
+
+  // دالة تفعيل وضع التعديل عند النقر على زر التعديل في جدول المنتجات
+  const handleEditClick = (product) => {
+    setEditingProductId(product.id);
+    setNewTitle(product.title || '');
+    setNewPrice(product.price || '');
+    setNewDiscountPrice(product.discount_price || '');
+    setNewBadge(product.badge === 'تخفيض' ? '' : (product.badge || ''));
+    // التأكد من جلب الفئة الدقيقة المحفوظة في قاعدة البيانات
+    setNewCategory(product.category || 'أجهزة');
+    setNewDescription(product.description || '');
+    setSelectedFiles([]);
+    setPreviewUrls(product.images && product.images.length > 0 ? product.images : (product.image_url ? [product.image_url] : []));
+    setActiveTab('add-product');
+  };
 
   // دالة إظهار النافذة المنبثقة الإشعارية
   const showModal = (message, title = '', type = 'success') => {
@@ -130,6 +161,7 @@ export default function AdminDashboard() {
     setPreviewUrls(updatedPreviews);
   };
 
+  // دالة معالجة حفظ أو تحديث المنتج
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!newTitle || !newPrice) {
@@ -166,7 +198,6 @@ export default function AdminDashboard() {
         }
       }
 
-      const mainImg = uploadedImageUrls[0] || '/logo.jpg';
       const finalBadge = newDiscountPrice ? 'تخفيض' : (newBadge || null);
 
       const productPayload = {
@@ -176,26 +207,36 @@ export default function AdminDashboard() {
         badge: finalBadge,
         category: newCategory,
         description: newDescription,
-        image_url: mainImg,
-        images: uploadedImageUrls
       };
 
-      const { error } = await supabase.from('products').insert([productPayload]);
+      if (uploadedImageUrls.length > 0) {
+        productPayload.image_url = uploadedImageUrls[0];
+        productPayload.images = uploadedImageUrls;
+      } else if (!editingProductId) {
+        productPayload.image_url = '/logo.jpg';
+        productPayload.images = [];
+      }
 
-      if (error) {
-        console.error('Error adding product:', error.message);
-        showModal('حدث خطأ أثناء حفظ المنتج في قاعدة البيانات.', 'خطأ في الحفظ', 'error');
+      let dbError;
+      if (editingProductId) {
+        // تحديث المنتج الحالي
+        const { error } = await supabase.from('products').update(productPayload).eq('id', editingProductId);
+        dbError = error;
       } else {
-        showModal('تمت إضافة المنتج ورفع كافة الصور الخاصة به بنجاح!', 'تم بنجاح 🎉', 'success');
+        // إضافة منتج جديد
+        const { error } = await supabase.from('products').insert([productPayload]);
+        dbError = error;
+      }
+
+      // إذا رفضت قاعدة البيانات الحفظ، سنعرض الخطأ مباشرة لنعرف السبب
+      if (dbError) {
+        console.error('Error saving product:', dbError.message);
+        showModal(`خطأ من قاعدة البيانات: ${dbError.message}`, 'فشل الحفظ', 'error');
+      } else {
+        showModal(editingProductId ? 'تم تحديث بيانات المنتج بنجاح!' : 'تمت إضافة المنتج ورفع كافة الصور الخاصة به بنجاح!', 'تم بنجاح 🎉', 'success');
         
-        setNewTitle('');
-        setNewPrice('');
-        setNewDiscountPrice('');
-        setNewBadge('');
-        setNewDescription('');
-        setSelectedFiles([]);
-        setPreviewUrls([]);
-        fetchProducts();
+        resetForm();
+        fetchProducts(); // إعادة جلب المنتجات المحدثة من القاعدة
         setActiveTab('products');
       }
     } catch (err) {
@@ -273,7 +314,7 @@ export default function AdminDashboard() {
 
           <button 
             className={`nav-item ${activeTab === 'add-product' ? 'active' : ''}`}
-            onClick={() => setActiveTab('add-product')}
+            onClick={() => { resetForm(); setActiveTab('add-product'); }}
           >
             <PackagePlus size={20} />
             <span>إضافة منتج</span>
@@ -482,7 +523,7 @@ export default function AdminDashboard() {
           <div className="tab-content">
             <div className="content-header-row">
               <h1 className="content-title">إدارة المنتجات ({products.length})</h1>
-              <button className="add-product-quick-btn" onClick={() => setActiveTab('add-product')}>
+              <button className="add-product-quick-btn" onClick={() => { resetForm(); setActiveTab('add-product'); }}>
                 + إضافة منتج جديد
               </button>
             </div>
@@ -509,7 +550,7 @@ export default function AdminDashboard() {
                         )}
                       </div>
                       <div className="p-admin-actions">
-                        <button className="action-btn edit-btn" title="تعديل">
+                        <button className="action-btn edit-btn" title="تعديل" onClick={() => handleEditClick(p)}>
                           <Edit size={16} />
                         </button>
                         <button className="action-btn delete-btn" title="حذف" onClick={() => handleDeleteProduct(p.id)}>
@@ -527,8 +568,8 @@ export default function AdminDashboard() {
         {/* add-product tab */}
         {activeTab === 'add-product' && (
           <div className="tab-content">
-            <h1 className="content-title">إضافة منتج جديد</h1>
-            <p className="sub-text">أدخل تفاصيل المنتج وارفع حتى 5 صور من جهازك مباشرة.</p>
+            <h1 className="content-title">{editingProductId ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد'}</h1>
+            <p className="sub-text">{editingProductId ? 'قم بتحديث تفاصيل المنتج وأسعاره.' : 'أدخل تفاصيل المنتج وارفع حتى 5 صور من جهازك مباشرة.'}</p>
 
             <form onSubmit={handleAddProduct} className="add-product-form-card">
               
@@ -662,7 +703,7 @@ export default function AdminDashboard() {
                 disabled={isSubmittingProduct}
               >
                 <Plus size={18} />
-                <span>{isSubmittingProduct ? 'جاري رفع الصور ونشر المنتج...' : 'حفظ ونشر المنتج'}</span>
+                <span>{isSubmittingProduct ? 'جاري المعالجة والحفظ...' : (editingProductId ? 'تحديث بيانات المنتج' : 'حفظ ونشر المنتج')}</span>
               </button>
 
             </form>

@@ -119,8 +119,8 @@ export default function ProductsPage({ currentLang, onAddToCart }) {
 
   const [sortBy, setSortBy] = useState('newest');
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(50000);
-  const maxLimit = 100000;
+  const maxLimit = 200000; // تم رفع الحد الأقصى ليتناسب مع أسعار الأجهزة المرتفعة
+  const [maxPrice, setMaxPrice] = useState(maxLimit); // يبدأ بالحد الأقصى لتفادي إخفاء المنتجات الغالية
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -156,24 +156,6 @@ export default function ProductsPage({ currentLang, onAddToCart }) {
           query = query.eq('category', selectedCategory);
         }
 
-        if (inStockOnly) {
-          query = query.eq('in_stock', true);
-        }
-
-        if (offersOnly) {
-          query = query.or('discount_price.gt.0,badge.eq.تخفيض,badge.eq.Sale,badge.eq.Promo,badge.eq.Oferta');
-        }
-
-        if (newlyArrived) {
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          query = query.gte('created_at', thirtyDaysAgo.toISOString());
-        }
-
-        if (bestSellersOnly) {
-          query = query.or('badge.eq.الأكثر مبيعا,badge.eq.Best Seller,badge.eq.Meilleures ventes,badge.eq.Más vendidos');
-        }
-
         if (location.state?.searchQuery) {
           query = query.ilike('title', `%${location.state.searchQuery}%`);
         }
@@ -192,8 +174,37 @@ export default function ProductsPage({ currentLang, onAddToCart }) {
 
         if (error) {
           console.error('Error fetching products:', error.message);
+          setProducts([]);
         } else {
-          setProducts(data || []);
+          let filtered = data || [];
+
+          if (inStockOnly) {
+            filtered = filtered.filter(p => p.in_stock === true);
+          }
+
+          if (offersOnly) {
+            filtered = filtered.filter(p => 
+              (p.discount_price && Number(p.discount_price) > 0) || 
+              ['تخفيض', 'Sale', 'Promo', 'Oferta'].includes(p.badge)
+            );
+          }
+
+          if (newlyArrived) {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            filtered = filtered.filter(p => 
+              (p.created_at && new Date(p.created_at) >= thirtyDaysAgo) || 
+              ['جديد', 'New'].includes(p.badge)
+            );
+          }
+
+          if (bestSellersOnly) {
+            filtered = filtered.filter(p => 
+              ['الأكثر مبيعا', 'Best Seller', 'Meilleures ventes', 'Más vendidos'].includes(p.badge)
+            );
+          }
+
+          setProducts(filtered);
           setCurrentPage(1);
         }
       } catch (err) {
@@ -387,7 +398,7 @@ export default function ProductsPage({ currentLang, onAddToCart }) {
         </div>
       </div>
 
-      {/* شبكة المنتجات بتصميم مطابق تماماً للصفحة الرئيسية */}
+      {/* شبكة المنتجات */}
       <div className="products-grid-4">
         {loading ? (
           <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
