@@ -240,7 +240,11 @@ export default function Hero({ currentLang }) {
               camera-orbit="0deg 75deg 80%" 
               field-of-view="30deg"         
               className="hero-model-viewer"
-            ></model-viewer>
+              loading="eager"
+              reveal="auto"
+            >
+              <div slot="progress-bar" style={{ display: 'none' }}></div>
+            </model-viewer>
           </div>
         </motion.div>
       </div>
