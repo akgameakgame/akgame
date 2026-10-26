@@ -13,7 +13,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
   const [phone, setPhone] = useState('');
   const [wilaya, setWilaya] = useState('');
   const [commune, setCommune] = useState('');
-  const [notes, setNotes] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,8 +53,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
       wilaya: 'الولاية',
       selectWilaya: 'اختر الولاية أولاً',
       communeLabel: 'البلدية',
-      extraInfo: 'معلومات إضافية',
-      notesPlaceholder: 'معلومات إضافية حول طلبك (اختياري)',
       currency: 'دج',
       fillRequired: 'يرجى ملء جميع الحقول المطلوبة والموافقة على الشروط.',
       orderSuccessTitle: 'تم إرسال طلبك بنجاح!',
@@ -82,8 +79,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
       wilaya: 'State / Wilaya',
       selectWilaya: 'Select Wilaya first',
       communeLabel: 'Commune',
-      extraInfo: 'Additional Information',
-      notesPlaceholder: 'Additional information about your order (optional)',
       currency: 'DZD',
       fillRequired: 'Please fill in all required fields and accept the terms.',
       orderSuccessTitle: 'Order Submitted!',
@@ -110,8 +105,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
       wilaya: 'Wilaya',
       selectWilaya: 'Sélectionnez d\'abord la wilaya',
       communeLabel: 'Commune',
-      extraInfo: 'Informations supplémentaires',
-      notesPlaceholder: 'Notes concernant votre commande (optionnel)',
       currency: 'DZD',
       fillRequired: 'Veuillez remplir tous les champs obligatoires et accepter les conditions.',
       orderSuccessTitle: 'Commande envoyée !',
@@ -138,8 +131,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
       wilaya: 'Provincia / Wilaya',
       selectWilaya: 'Seleccione primero la wilaya',
       communeLabel: 'Municipio',
-      extraInfo: 'Información Adicional',
-      notesPlaceholder: 'Notas sobre su pedido (opcional)',
       currency: 'DZD',
       fillRequired: 'Por favor complete todos los campos requeridos y acepte los términos.',
       orderSuccessTitle: '¡Pedido enviado!',
@@ -173,7 +164,7 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
         phone: phone,
         wilaya: wilaya,
         commune: commune || 'غير محدد',
-        notes: notes,
+        notes: '',
         total_amount: totalPrice,
         items: cartItems.map(item => ({
           id: item.id,
@@ -211,7 +202,6 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
     <div className="checkout-page-container" dir={isRtl ? 'rtl' : 'ltr'}>
       <h1 className="checkout-page-title">{t.title}</h1>
 
-      {/* رسالة الخطأ أو التحذير في حال نقص البيانات */}
       {errorMessage && (
         <div className="checkout-error-banner">
           <AlertCircle size={18} />
@@ -224,78 +214,7 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
 
       <form onSubmit={handleConfirmOrder} className="checkout-form-wrapper">
         
-        {/* الكرت العلوي: ملخص الطلب والمنتجات */}
-        <div className="checkout-summary-card">
-          <div className="summary-info-block">
-            
-            {cartItems && cartItems.length > 0 && (
-              <div className="checkout-items-preview">
-                <h3 className="preview-title">{t.orderedItems} ({totalItemsCount})</h3>
-                <div className="preview-items-list">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="preview-item-row">
-                      <div className="preview-item-info">
-                        <div className="preview-item-img-box">
-                          <img 
-                            src={item.image || item.image_url || '/logo.jpg'} 
-                            alt={item.title} 
-                            className="preview-item-img" 
-                          />
-                        </div>
-                        <div className="preview-item-details-col">
-                          <span className="preview-item-name">{item.title}</span>
-                          <span className="preview-item-qty">x{item.quantity}</span>
-                        </div>
-                      </div>
-                      <span className="preview-item-price">{item.price * item.quantity} {t.currency}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="summary-line">
-              <span className="line-label">{t.subtotal} ({totalItemsCount})</span>
-              <span className="line-value">{subtotalPrice} {t.currency}</span>
-            </div>
-
-            <div className="summary-line">
-              <span className="line-label">{t.shippingMethod}</span>
-              <span className="line-value sub">{wilaya ? `${shippingFee} ${t.currency}` : t.chooseCommune}</span>
-            </div>
-
-            <div className="summary-line">
-              <span className="line-label">{t.paymentMethod}</span>
-            </div>
-
-            <div className="summary-total-box">
-              <span className="total-title">{t.total}</span>
-              <span className="total-amount">{totalPrice} {t.currency}</span>
-            </div>
-
-            <button 
-              type="submit" 
-              className="confirm-order-btn"
-              disabled={isSubmitting}
-            >
-              <span>{isSubmitting ? 'جاري إرسال الطلب...' : t.confirmOrder}</span>
-              <span className="btn-price-tag">{totalPrice} {t.currency}</span>
-            </button>
-
-            <div className="terms-checkbox-wrapper" onClick={() => setAgreedTerms(!agreedTerms)}>
-              <div className={`custom-checkbox ${agreedTerms ? 'checked' : ''}`}>
-                {agreedTerms && <Check size={14} />}
-              </div>
-              <span className="terms-text">{t.agreeTerms}</span>
-            </div>
-
-            <p className="terms-disclaimer-note">
-              {t.termsNote}
-            </p>
-          </div>
-        </div>
-
-        {/* الكرت السفلي: نموذج بيانات العميل والتوصيل */}
+        {/* 1. الكرت الأول: نموذج بيانات العميل والتوصيل (تم نقله للأعلى) */}
         <div className="checkout-details-card">
           
           <div className="form-section-block">
@@ -374,23 +293,77 @@ export default function CheckoutPage({ currentLang, cartItems, onClearCart }) {
             </div>
           </div>
 
-          <div className="form-section-block" style={{ marginTop: '30px' }}>
-            <div className="section-title-badge">
-              <span className="badge-num">3</span>
-              <h2 className="section-title">{t.extraInfo}</h2>
+        </div>
+
+        {/* 2. الكرت الثاني: ملخص الطلب والتأكيد (أصبح في الأسفل) */}
+        <div className="checkout-summary-card">
+          <div className="summary-info-block">
+            
+            {cartItems && cartItems.length > 0 && (
+              <div className="checkout-items-preview">
+                <h3 className="preview-title">{t.orderedItems} ({totalItemsCount})</h3>
+                <div className="preview-items-list">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="preview-item-row">
+                      <div className="preview-item-info">
+                        <div className="preview-item-img-box">
+                          <img 
+                            src={item.image || item.image_url || '/logo.jpg'} 
+                            alt={item.title} 
+                            className="preview-item-img" 
+                          />
+                        </div>
+                        <div className="preview-item-details-col">
+                          <span className="preview-item-name">{item.title}</span>
+                          <span className="preview-item-qty">x{item.quantity}</span>
+                        </div>
+                      </div>
+                      <span className="preview-item-price">{item.price * item.quantity} {t.currency}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="summary-line">
+              <span className="line-label">{t.subtotal} ({totalItemsCount})</span>
+              <span className="line-value">{subtotalPrice} {t.currency}</span>
             </div>
 
-            <div className="input-group full-width">
-              <textarea 
-                className="checkout-textarea"
-                rows="4"
-                placeholder={t.notesPlaceholder}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              ></textarea>
+            <div className="summary-line">
+              <span className="line-label">{t.shippingMethod}</span>
+              <span className="line-value sub">{wilaya ? `${shippingFee} ${t.currency}` : t.chooseCommune}</span>
             </div>
+
+            <div className="summary-line">
+              <span className="line-label">{t.paymentMethod}</span>
+            </div>
+
+            <div className="summary-total-box">
+              <span className="total-title">{t.total}</span>
+              <span className="total-amount">{totalPrice} {t.currency}</span>
+            </div>
+
+            <button 
+              type="submit" 
+              className="confirm-order-btn"
+              disabled={isSubmitting}
+            >
+              <span>{isSubmitting ? 'جاري إرسال الطلب...' : t.confirmOrder}</span>
+              <span className="btn-price-tag">{totalPrice} {t.currency}</span>
+            </button>
+
+            <div className="terms-checkbox-wrapper" onClick={() => setAgreedTerms(!agreedTerms)}>
+              <div className={`custom-checkbox ${agreedTerms ? 'checked' : ''}`}>
+                {agreedTerms && <Check size={14} />}
+              </div>
+              <span className="terms-text">{t.agreeTerms}</span>
+            </div>
+
+            <p className="terms-disclaimer-note">
+              {t.termsNote}
+            </p>
           </div>
-
         </div>
 
       </form>

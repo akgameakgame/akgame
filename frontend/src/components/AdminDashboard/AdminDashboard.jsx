@@ -366,19 +366,6 @@ export default function AdminDashboard() {
                 <div className="stat-wave-bg"></div>
               </div>
 
-              <div className="stat-card-modern teal-theme">
-                <div className="stat-card-header">
-                  <span className="stat-card-title">متوسط قيمة الطلب</span>
-                  <div className="stat-icon-wrapper"><ShoppingBag size={18} /></div>
-                </div>
-                <div className="stat-card-body">
-                  <h2 className="stat-card-value">
-                    {orders.length > 0 ? (totalRevenue / orders.length).toFixed(0) : 0} دج
-                  </h2>
-                </div>
-                <div className="stat-wave-bg"></div>
-              </div>
-
               <div className="stat-card-modern blue-theme">
                 <div className="stat-card-header">
                   <span className="stat-card-title">إجمالي الطلبات</span>
