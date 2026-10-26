@@ -1,4 +1,4 @@
-/* حاوية الفوتر لتملأ عرض الشاشة بالكامل */
+/* ================= الحاوية الرئيسية للفوتر ================= */
 .footer-container {
   width: 100%;
   background: #ffffff;
@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 10
+  width: 100%;
 }
 
 /* تنسيق القسم الأيمن (تواصل معنا) */
@@ -99,7 +99,7 @@
   background-color: #cbd5e1;
 }
 
-/* تنسيق القسم الأيسر (الشعار والدقائق) */
+/* تنسيق القسم الأيسر (الشعار والوصف) */
 .brand-col {
   align-items: center;
   text-align: center;
@@ -139,14 +139,14 @@
 }
 
 .footer-social-circles {
- display: flex;
+  display: flex;
   gap: 10px;
   justify-content: center;
   margin: 4px 0;
 }
 
 .footer-social-circle {
-width: 32px;
+  width: 32px;
   height: 32px;
   border-radius: 50%;
   border: 1px solid #cbd5e1;
@@ -159,6 +159,7 @@ width: 32px;
   cursor: pointer;
   text-decoration: none;
 }
+
 .social-icon-img {
   width: 55%;
   height: 55%;
@@ -174,14 +175,18 @@ width: 32px;
 .footer-social-circle:hover .social-icon-img {
   transform: scale(1.1);
 }
+
 .footer-description {
   font-size: 11px;
   color: #475569;
   text-align: center;
-  max-width: 230px;
-  margin: 0;
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
   line-height: 1.5;
   font-weight: 500;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* الخط الفاصل السفلي وحقوق الملكية */
