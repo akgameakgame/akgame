@@ -178,7 +178,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
     }
   };
 
-  // الفلترة الفورية للمنتجات أثناء الكتابة[cite: 13]
+  // الفلترة الفورية للمنتجات أثناء الكتابة[cite: 9]
   const filteredProducts = searchQuery.trim()
     ? products.filter(p => p.title?.toLowerCase().includes(searchQuery.toLowerCase()))
     : products;
@@ -192,7 +192,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
     { id: 6, image: "/6photo(6).png", key: "بطاقات رقمية", name: { ar: "بطاقات رقمية", en: "Digital Cards", fr: "Cartes Cadeaux", es: "Tarjetas Digitales" } },
   ];
 
-  // تصفية قسم وصل حديثاً[cite: 13]
+  // تصفية قسم وصل حديثاً[cite: 9]
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -207,27 +207,27 @@ export default function MainContent({ currentLang, onAddToCart }) {
 
   const bestSellers = filteredProducts.filter(p => p.badge === 'الأكثر مبيعا' || p.badge === 'Best Seller').slice(0, 5);
   
-  // تصفية قسم العروض[cite: 13]
+  // تصفية قسم العروض[cite: 9]
   const discountProducts = filteredProducts.filter(p => 
     (p.discount_price && Number(p.discount_price) > 0) || 
     ['تخفيض', 'Sale', 'Promo', 'Oferta'].includes(p.badge)
   ).slice(0, 5);
 
-  // فلترة دقيقة وصارمة للمنتجات الرقمية حصراً[cite: 13]
+  // فلترة دقيقة وصارمة للمنتجات الرقمية حصراً[cite: 9]
   const digitalProducts = filteredProducts.filter(p => 
     p.category === 'بطاقات رقمية' || 
     p.category === 'digital' || 
     p.badge === 'رقمي'
   ).slice(0, 5);
 
-  // فلترة دقيقة وصارمة للمجسمات حصراً[cite: 13]
+  // فلترة دقيقة وصارمة للمجسمات حصراً[cite: 9]
   const figuresProducts = filteredProducts.filter(p => 
     p.category === 'مجسمات' || 
     p.category === 'figures' || 
     p.badge === 'مجسمات'
   ).slice(0, 5);
 
-  // فلترة ذكية وشاملة للأجهزة المستعملة
+  // فلترة ذكية وشاملة للأجهزة المستعملة[cite: 9]
   const usedConsolesProducts = filteredProducts.filter(p => {
     const cat = (p.category || '').toLowerCase();
     const badge = (p.badge || '').toLowerCase();
@@ -243,7 +243,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
     );
   }).slice(0, 5);
 
-  // دالة تحديد كلاس الشارة بناءً على نوعها[cite: 13]
+  // دالة تحديد كلاس الشارة بناءً على نوعها[cite: 9]
   const getBadgeClass = (badgeText) => {
     if (!badgeText) return 'sale-badge';
     if (['تخفيض', 'Sale', 'Promo', 'Oferta'].includes(badgeText)) return 'sale-badge';
@@ -251,7 +251,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
     return 'default-badge';
   };
 
-  // دالة ترجمة النص الخاص بالشارة حسب اللغة الحالية[cite: 13]
+  // دالة ترجمة النص الخاص بالشارة حسب اللغة الحالية[cite: 9]
   const translateBadge = (rawBadge) => {
     if (!rawBadge) return '';
     const translatedObj = badgeTranslations[rawBadge];
@@ -327,7 +327,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
 
   return (
     <main className="store-main-container">
-      {/* 1. قسم البحث */}
+      {/* 1. قسم البحث[cite: 9] */}
       <div 
         className="search-section fade-in-section" 
         style={{ 
@@ -359,7 +359,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </form>
       </div>
 
-      {/* نتائج البحث[cite: 13] */}
+      {/* نتائج البحث[cite: 9] */}
       {searchQuery.trim() && (
         <section className="products-section fade-in-section is-visible" style={{ marginBottom: '30px', opacity: 1, visibility: 'visible' }}>
           <div className="section-header">
@@ -385,7 +385,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </section>
       )}
 
-      {/* 2. تصفح حسب الفئة[cite: 13] */}
+      {/* 2. تصفح حسب الفئة[cite: 9] */}
       <section className="categories-section fade-in-section">
         <h2 className="section-title">{t.categoriesTitle}</h2>
         <div className="categories-grid">
@@ -409,7 +409,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 3. قسم وصل حديثاً[cite: 13] */}
+      {/* 3. قسم وصل حديثاً[cite: 9] */}
       <section id="new" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.newProducts}</h2>
@@ -429,7 +429,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 4. قسم الأكثر مبيعاً[cite: 13] */}
+      {/* 4. قسم الأكثر مبيعاً (معدل)[cite: 9] */}
       <section id="bestsellers" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.bestSellers}</h2>
@@ -444,12 +444,18 @@ export default function MainContent({ currentLang, onAddToCart }) {
           {loading ? (
             <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#94a3b8' }}>{isRtl ? 'جاري التحميل...' : 'Loading...'}</p>
           ) : (
-            (bestSellers.length > 0 ? bestSellers : products.slice(0, 5)).map((prod, idx) => renderProductCard(prod, idx))
+            bestSellers.length > 0 ? (
+              bestSellers.map((prod, idx) => renderProductCard(prod, idx))
+            ) : (
+              <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#94a3b8' }}>
+                {isRtl ? 'لا توجد منتجات في الأكثر مبيعا حالياً' : 'No best seller products available'}
+              </p>
+            )
           )}
         </div>
       </section>
 
-      {/* 5. قسم التخفيضات والعروض[cite: 13] */}
+      {/* 5. قسم التخفيضات والعروض (معدل)[cite: 9] */}
       <section id="discounts" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.discounts}</h2>
@@ -464,12 +470,18 @@ export default function MainContent({ currentLang, onAddToCart }) {
           {loading ? (
             <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#94a3b8' }}>{isRtl ? 'جاري التحميل...' : 'Loading...'}</p>
           ) : (
-            (discountProducts.length > 0 ? discountProducts : products.slice(0, 5)).map((prod, idx) => renderProductCard(prod, idx))
+            discountProducts.length > 0 ? (
+              discountProducts.map((prod, idx) => renderProductCard(prod, idx))
+            ) : (
+              <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#94a3b8' }}>
+                {isRtl ? 'لا توجد تخفيضات متاحة حالياً' : 'No discount products available'}
+              </p>
+            )
           )}
         </div>
       </section>
 
-      {/* 6. قسم المنتجات الرقمية[cite: 13] */}
+      {/* 6. قسم المنتجات الرقمية[cite: 9] */}
       <section id="digital" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.digitalProducts}</h2>
@@ -495,7 +507,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 7. قسم المجسمات[cite: 13] */}
+      {/* 7. قسم المجسمات[cite: 9] */}
       <section id="figures" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">
@@ -523,7 +535,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 8. قسم الأجهزة المستعملة */}
+      {/* 8. قسم الأجهزة المستعملة[cite: 9] */}
       <section id="used-consoles" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">
@@ -551,7 +563,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 9. قسم جميع أقسام المتجر[cite: 13] */}
+      {/* 9. قسم جميع أقسام المتجر[cite: 9] */}
       <section id="all-categories" className="store-categories-section fade-in-section">
         <h2 className="section-title">{t.allCategories}</h2>
         <div className="store-categories-grid">
@@ -575,7 +587,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 10. قسم موقع وتواجد المحل الخريطة التفاعلية الفاخرة[cite: 13] */}
+      {/* 10. قسم موقع وتواجد المحل الخريطة التفاعلية الفاخرة[cite: 9] */}
       <section className="store-location-section fade-in-section" id="location">
         <h2 className="section-title">{locT.title}</h2>
         <p className="location-subtitle">{locT.subtitle}</p>
@@ -633,7 +645,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
 
           </div>
 
-          {/* إطار الخريطة التفاعلية بتصميم ليلي فاخر[cite: 13] */}
+          {/* إطار الخريطة التفاعلية بتصميم ليلي فاخر[cite: 9] */}
           <div className="location-map-column">
             <iframe
               title="AKGAME Store Location Map"
