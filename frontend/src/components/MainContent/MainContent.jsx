@@ -153,7 +153,8 @@ export default function MainContent({ currentLang, onAddToCart }) {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(100); // جلب عدد كافٍ من المنتجات من قاعدة البيانات
 
         if (error) {
           console.error('Error fetching home products from Supabase:', error.message);
@@ -192,42 +193,39 @@ export default function MainContent({ currentLang, onAddToCart }) {
     { id: 6, image: "/6photo(6).png", key: "بطاقات رقمية", name: { ar: "بطاقات رقمية", en: "Digital Cards", fr: "Cartes Cadeaux", es: "Tarjetas Digitales" } },
   ];
 
-  // تصفية قسم وصل حديثاً[cite: 9]
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  // 1. قسم جديد / وصل حديثاً (عرض أحدث 10 منتجات دائماً بدلاً من تقييدها بـ 5)
+  const newProducts = filteredProducts.slice(0, 10);
 
-  const newlyArrivedProducts = filteredProducts.filter(p => 
-    (p.created_at && new Date(p.created_at) >= thirtyDaysAgo) || 
-    ['جديد', 'New'].includes(p.badge)
-  );
-
-  const newProducts = newlyArrivedProducts.length > 0 
-    ? newlyArrivedProducts.slice(0, 5) 
-    : filteredProducts.slice(0, 5);
-
-  const bestSellers = filteredProducts.filter(p => p.badge === 'الأكثر مبيعا' || p.badge === 'Best Seller').slice(0, 5);
+  // 2. قسم الأكثر مبيعا (جلب 10 منتجات)
+  const bestSellersList = filteredProducts.filter(p => p.badge === 'الأكثر مبيعا' || p.badge === 'Best Seller');
+  const bestSellers = bestSellersList.length > 0 
+    ? bestSellersList.slice(0, 10) 
+    : filteredProducts.slice(0, 10);
   
-  // تصفية قسم العروض[cite: 9]
-  const discountProducts = filteredProducts.filter(p => 
+  // 3. قسم التخفيضات والعروض (جلب 10 منتجات)
+  const discountList = filteredProducts.filter(p => 
     (p.discount_price && Number(p.discount_price) > 0) || 
     ['تخفيض', 'Sale', 'Promo', 'Oferta'].includes(p.badge)
-  ).slice(0, 5);
+  );
+  const discountProducts = discountList.length > 0 
+    ? discountList.slice(0, 10) 
+    : filteredProducts.slice(0, 10);
 
-  // فلترة دقيقة وصارمة للمنتجات الرقمية حصراً[cite: 9]
+  // 4. قسم المنتجات الرقمية (جلب 10 منتجات)
   const digitalProducts = filteredProducts.filter(p => 
     p.category === 'بطاقات رقمية' || 
     p.category === 'digital' || 
     p.badge === 'رقمي'
-  ).slice(0, 5);
+  ).slice(0, 10);
 
-  // فلترة دقيقة وصارمة للمجسمات حصراً[cite: 9]
+  // 5. قسم المجسمات (جلب 10 منتجات)
   const figuresProducts = filteredProducts.filter(p => 
     p.category === 'مجسمات' || 
     p.category === 'figures' || 
     p.badge === 'مجسمات'
-  ).slice(0, 5);
+  ).slice(0, 10);
 
-  // فلترة ذكية وشاملة للأجهزة المستعملة[cite: 9]
+  // 6. قسم الأجهزة المستعملة (جلب 10 منتجات)
   const usedConsolesProducts = filteredProducts.filter(p => {
     const cat = (p.category || '').toLowerCase();
     const badge = (p.badge || '').toLowerCase();
@@ -241,7 +239,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
       badge.includes('used') || 
       badge.includes('occasion')
     );
-  }).slice(0, 5);
+  }).slice(0, 10);
 
   // دالة تحديد كلاس الشارة بناءً على نوعها[cite: 9]
   const getBadgeClass = (badgeText) => {
@@ -409,7 +407,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 3. قسم وصل حديثاً[cite: 9] */}
+      {/* 3. قسم وصل حديثاً (10 منتجات)[cite: 9] */}
       <section id="new" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.newProducts}</h2>
@@ -429,7 +427,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 4. قسم الأكثر مبيعاً (معدل)[cite: 9] */}
+      {/* 4. قسم الأكثر مبيعاً (10 منتجات)[cite: 9] */}
       <section id="bestsellers" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.bestSellers}</h2>
@@ -455,7 +453,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 5. قسم التخفيضات والعروض (معدل)[cite: 9] */}
+      {/* 5. قسم التخفيضات والعروض (10 منتجات)[cite: 9] */}
       <section id="discounts" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.discounts}</h2>
@@ -481,7 +479,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 6. قسم المنتجات الرقمية[cite: 9] */}
+      {/* 6. قسم المنتجات الرقمية (10 منتجات)[cite: 9] */}
       <section id="digital" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">{t.digitalProducts}</h2>
@@ -507,7 +505,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 7. قسم المجسمات[cite: 9] */}
+      {/* 7. قسم المجسمات (10 منتجات)[cite: 9] */}
       <section id="figures" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">
@@ -535,7 +533,7 @@ export default function MainContent({ currentLang, onAddToCart }) {
         </div>
       </section>
 
-      {/* 8. قسم الأجهزة المستعملة[cite: 9] */}
+      {/* 8. قسم الأجهزة المستعملة (10 منتجات)[cite: 9] */}
       <section id="used-consoles" className="products-section fade-in-section" style={{ scrollMarginTop: '100px' }}>
         <div className="section-header">
           <h2 className="section-title">
