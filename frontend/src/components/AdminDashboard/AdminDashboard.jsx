@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, ShoppingBag, PackagePlus, Package, 
   ArrowLeft, Search, Trash2, Edit, Plus, Image as ImageIcon, Upload, X,
-  DollarSign, TrendingUp, RefreshCw, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertTriangle, AlertCircle
+  DollarSign, TrendingUp, RefreshCw, CheckCircle2, AlertTriangle, AlertCircle
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import './AdminDashboard.css';
@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   // حالة النافذة المنبثقة للإشعارات والتنبيهات
   const [modal, setModal] = useState({ show: false, message: '', title: '', type: 'success' });
 
-  // حالة نافذة تأكيد الحذف المخصصة (بديل window.confirm)
+  // حالة نافذة تأكيد الحذف المخصصة
   const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
 
   // حالات نموذج إضافة أو تعديل منتج
@@ -30,7 +30,7 @@ export default function AdminDashboard() {
   const [newCategory, setNewCategory] = useState('أجهزة');
   const [newDescription, setNewDescription] = useState('');
   
-  // تتبع معرف المنتج قيد التعديل (إذا كان null فهذا يعني إضافة منتج جديد)
+  // تتبع معرف المنتج قيد التعديل
   const [editingProductId, setEditingProductId] = useState(null);
   
   // الملفات المعاينة
@@ -58,7 +58,6 @@ export default function AdminDashboard() {
     setNewPrice(product.price || '');
     setNewDiscountPrice(product.discount_price || '');
     setNewBadge(product.badge === 'تخفيض' ? '' : (product.badge || ''));
-    // التأكد من جلب الفئة الدقيقة المحفوظة في قاعدة البيانات
     setNewCategory(product.category || 'أجهزة');
     setNewDescription(product.description || '');
     setSelectedFiles([]);
@@ -117,7 +116,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // معالجة حذف الطلب باستعمال نافذة التأكيد الاحترافية المخصصة
+  // معالجة حذف الطلب
   const handleDeleteOrder = (orderId) => {
     askConfirmation('تأكيد حذف الطلب', 'هل أنت تأكد من رغبتك في حذف هذا الطلب نهائياً؟', async () => {
       const { error } = await supabase.from('orders').delete().eq('id', orderId);
@@ -128,7 +127,7 @@ export default function AdminDashboard() {
     });
   };
 
-  // معالجة حذف المنتج باستعمال نافذة التأكيد الاحترافية المخصصة
+  // معالجة حذف المنتج
   const handleDeleteProduct = (productId) => {
     askConfirmation('تأكيد حذف المنتج', 'هل أنت تأكد من رغبتك في حذف هذا المنتج نهائياً من المتجر؟', async () => {
       const { error } = await supabase.from('products').delete().eq('id', productId);
@@ -219,24 +218,28 @@ export default function AdminDashboard() {
 
       let dbError;
       if (editingProductId) {
-        // تحديث المنتج الحالي
-        const { error } = await supabase.from('products').update(productPayload).eq('id', editingProductId);
+        const { data, error } = await supabase
+          .from('products')
+          .update(productPayload)
+          .eq('id', Number(editingProductId) || editingProductId)
+          .select();
+        
         dbError = error;
+        if (!error && (!data || data.length === 0)) {
+          dbError = { message: 'لم يتم العثور على المنتج لتحديثه في قاعدة البيانات.' };
+        }
       } else {
-        // إضافة منتج جديد
         const { error } = await supabase.from('products').insert([productPayload]);
         dbError = error;
       }
 
-      // إذا رفضت قاعدة البيانات الحفظ، سنعرض الخطأ مباشرة لنعرف السبب
       if (dbError) {
         console.error('Error saving product:', dbError.message);
         showModal(`خطأ من قاعدة البيانات: ${dbError.message}`, 'فشل الحفظ', 'error');
       } else {
         showModal(editingProductId ? 'تم تحديث بيانات المنتج بنجاح!' : 'تمت إضافة المنتج ورفع كافة الصور الخاصة به بنجاح!', 'تم بنجاح 🎉', 'success');
-        
         resetForm();
-        fetchProducts(); // إعادة جلب المنتجات المحدثة من القاعدة
+        fetchProducts();
         setActiveTab('products');
       }
     } catch (err) {
@@ -335,7 +338,21 @@ export default function AdminDashboard() {
         {/* overview tab */}
         {activeTab === 'overview' && (
           <div className="tab-content">
-            <h1 className="content-title">نظرة عامة على المتجر</h1>
+            <div className="content-header-row">
+              <h1 className="content-title" style={{ margin: 0 }}>نظرة عامة على المتجر</h1>
+              <button 
+                className="refresh-stats-btn"
+                onClick={async () => {
+                  setLoading(true);
+                  await Promise.all([fetchOrders(), fetchProducts()]);
+                  setLoading(false);
+                  showModal('تم إعادة حساب وتحديث بيانات وط طلبات المتجر بنجاح!', 'تحديث البيانات', 'success');
+                }}
+              >
+                <RefreshCw size={16} className="refresh-icon" />
+                <span>إعادة حساب البيانات</span>
+              </button>
+            </div>
             
             <div className="stats-grid-modern">
               <div className="stat-card-modern green-theme">
@@ -345,7 +362,6 @@ export default function AdminDashboard() {
                 </div>
                 <div className="stat-card-body">
                   <h2 className="stat-card-value">{totalRevenue.toLocaleString()} دج</h2>
-                  <div className="stat-trend positive"><ArrowUpRight size={14} /><span>+18.2%</span></div>
                 </div>
                 <div className="stat-wave-bg"></div>
               </div>
@@ -359,7 +375,6 @@ export default function AdminDashboard() {
                   <h2 className="stat-card-value">
                     {orders.length > 0 ? (totalRevenue / orders.length).toFixed(0) : 0} دج
                   </h2>
-                  <div className="stat-trend positive"><ArrowUpRight size={14} /><span>+4.8%</span></div>
                 </div>
                 <div className="stat-wave-bg"></div>
               </div>
@@ -371,7 +386,6 @@ export default function AdminDashboard() {
                 </div>
                 <div className="stat-card-body">
                   <h2 className="stat-card-value">{orders.length} طلب</h2>
-                  <div className="stat-trend positive"><ArrowUpRight size={14} /><span>+0.8%</span></div>
                 </div>
                 <div className="stat-wave-bg"></div>
               </div>
@@ -383,7 +397,6 @@ export default function AdminDashboard() {
                 </div>
                 <div className="stat-card-body">
                   <h2 className="stat-card-value">{pendingOrdersCount}</h2>
-                  <div className="stat-trend negative"><ArrowDownRight size={14} /><span>-0.3%</span></div>
                 </div>
                 <div className="stat-wave-bg"></div>
               </div>
@@ -623,7 +636,7 @@ export default function AdminDashboard() {
                     <option value="إكسسوارات">إكسسوارات (Accessories)</option>
                     <option value="بطاقات رقمية">بطاقات رقمية (Digital Cards)</option>
                     <option value="مجسمات">مجسمات (Figures)</option>
-                    <option value="اجهزة مستعملة">أجهزة مستعملة (Used Consoles)</option>
+                    <option value="أجهزة مستعملة">أجهزة مستعملة (Used Consoles)</option>
                   </select>
                 </div>
 
@@ -712,59 +725,42 @@ export default function AdminDashboard() {
 
       </main>
 
-      {/* 1. النافذة المنبثقة للإشعارات والتنبيهات العامة */}
+      {/* النافذة المنبثقة للإشعارات والتنبيهات العامة */}
       {modal.show && (
         <div className="center-modal-overlay" onClick={closeModal}>
           <div className={`center-modal-card ${modal.type}`} onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={closeModal}>
               <X size={18} />
             </button>
-
             <div className="modal-icon-badge">
-              {modal.type === 'success' ? (
-                <CheckCircle2 size={36} color="#22c55e" />
-              ) : (
-                <AlertTriangle size={36} color="#ef4444" />
-              )}
+              {modal.type === 'success' ? <CheckCircle2 size={36} color="#22c55e" /> : <AlertTriangle size={36} color="#ef4444" />}
             </div>
-
             <h3 className="modal-title">{modal.title}</h3>
             <p className="modal-message">{modal.message}</p>
-
-            <button className="modal-confirm-btn" onClick={closeModal}>
-              موافق
-            </button>
+            <button className="modal-confirm-btn" onClick={closeModal}>موافق</button>
           </div>
         </div>
       )}
 
-      {/* 2. نافذة التأكيد قبل الحذف احترافية وبشكل مرتب في منتصف الشاشة */}
+      {/* نافذة التأكيد قبل الحذف */}
       {confirmModal.show && (
         <div className="center-modal-overlay" onClick={() => setConfirmModal({ ...confirmModal, show: false })}>
           <div className="center-modal-card confirm-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-icon" onClick={() => setConfirmModal({ ...confirmModal, show: false })}>
               <X size={18} />
             </button>
-
             <div className="modal-icon-badge danger">
               <AlertCircle size={38} color="#ef4444" />
             </div>
-
             <h3 className="modal-title">{confirmModal.title}</h3>
             <p className="modal-message">{confirmModal.message}</p>
-
             <div className="modal-actions-row">
-              <button className="modal-btn cancel-btn" onClick={() => setConfirmModal({ ...confirmModal, show: false })}>
-                إلغاء
-              </button>
-              <button className="modal-btn delete-confirm-btn" onClick={confirmModal.onConfirm}>
-                تأكيد الحذف
-              </button>
+              <button className="modal-btn cancel-btn" onClick={() => setConfirmModal({ ...confirmModal, show: false })}>إلغاء</button>
+              <button className="modal-btn delete-confirm-btn" onClick={confirmModal.onConfirm}>تأكيد الحذف</button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

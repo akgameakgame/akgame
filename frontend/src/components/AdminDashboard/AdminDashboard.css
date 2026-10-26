@@ -878,7 +878,37 @@
   background: #dddddd;
   transform: translateY(-1px);
 }
+/* زر إعادة حساب البيانات العصري */
+.refresh-stats-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #111111;
+  border: 1px solid #262626;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
 
+.refresh-stats-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+}
+
+.refresh-stats-btn:hover .refresh-icon {
+  transform: rotate(180deg);
+}
+
+.refresh-icon {
+  transition: transform 0.4s ease;
+}
 /* ================= 9. الأنيميشن الاحترافي (Keyframes) ================= */
 @keyframes fadeIn {
   from { opacity: 0; }
