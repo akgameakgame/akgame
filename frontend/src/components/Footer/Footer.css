@@ -36,6 +36,7 @@
 .contact-col {
   align-items: flex-end;
   text-align: right;
+  margin-right: 50px;
 }
 
 .footer-title {
